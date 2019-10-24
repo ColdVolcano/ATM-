@@ -29,11 +29,7 @@ namespace ATMPlus.Ventanas
                 Padding = new MarginPadding { Top = 100 },
                 RelativeSizeAxes = Axes.Both,
             });
-        }
 
-        [BackgroundDependencyLoader]
-        private void load()
-        {
             AddInternal(new Container
             {
                 Anchor = Anchor.TopCentre,

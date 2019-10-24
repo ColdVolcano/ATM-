@@ -23,7 +23,7 @@ namespace ATMPlus.Ventanas
                     Origin = Anchor.Centre,
                     BackgroundColour = FrameworkColour.Blue,
                     Text = "Consulta",
-                    Action = this.Exit,
+                    Action = () => LoadComponentAsync(new ConsultaUsuario(cuenta), this.Push),
                 },
                 new BotonOpcion
                 {
@@ -44,11 +44,6 @@ namespace ATMPlus.Ventanas
                     Action = this.Exit,
                 }
             });
-        }
-
-        [BackgroundDependencyLoader]
-        private void load()
-        {
 
             Titulo = $"Nos alegra tenerte aquí, {cuenta.Nombre.PrimerNombre}";
             ColorFondoTitulo = Color4.MediumSlateBlue;

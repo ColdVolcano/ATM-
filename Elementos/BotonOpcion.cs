@@ -24,7 +24,8 @@ namespace ATMPlus.Elementos
             Add(icon = new SpriteIcon
             {
                 Icon = FontAwesome.Regular.QuestionCircle,
-                Size = new Vector2(60),
+                RelativeSizeAxes = Axes.Both,
+                Size = new Vector2(1/3f),
                 Colour = Color4.WhiteSmoke,
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,

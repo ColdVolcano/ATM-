@@ -1,6 +1,4 @@
-﻿using ATMPlus.Database;
-using osu.Framework;
-using osu.Framework.Allocation;
+﻿using osu.Framework;
 using ATMPlus.Ventanas;
 using osu.Framework.Screens;
 using osu.Framework.Graphics;
@@ -11,11 +9,6 @@ namespace ATMPlus
     {
         private Login loginContainer;
         private ScreenStack stack;
-
-        [BackgroundDependencyLoader]
-        private void load()
-        {
-        }
 
         protected override void LoadComplete()
         {
