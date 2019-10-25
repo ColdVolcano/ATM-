@@ -51,6 +51,7 @@ namespace ATMPlus.Ventanas
                             LoadComponentAsync(new Usuario(cuentaCliente), this.Push);
                             break;
                         case CuentaGerente cuentaGerente:   //Crear gerente
+                            LoadComponentAsync(new Gerente(cuentaGerente), this.Push);
                             break;
                     }
                 }

@@ -74,8 +74,8 @@ namespace ATMPlus.Ventanas
                 {
                     new Box
                     {
-                        Colour = Color4.White,
-                        Alpha = 0.1f,
+                        Colour = Color4.Black,
+                        Alpha = 0.5f,
                         RelativeSizeAxes = Axes.Both
                     },
                     alertText = new TextFlowContainer

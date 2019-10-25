@@ -105,7 +105,7 @@ namespace ATMPlus.Ventanas
             flujoHistorial.Clear();
 
             foreach (var ent in entradas.Where(e => e.FechaHora.Year == seleccion.NewValue.Year && e.FechaHora.Month == seleccion.NewValue.Month))
-                flujoHistorial.Add(new HistorialVisual(cuenta, ent));
+                flujoHistorial.Add(new HistorialVisual(cuenta.NumeroCuenta, ent));
         }
 
         [BackgroundDependencyLoader]

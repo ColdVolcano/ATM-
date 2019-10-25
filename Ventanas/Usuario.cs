@@ -64,7 +64,6 @@ namespace ATMPlus.Ventanas
             {
                 db.CerrarSesion(cuenta);
             }
-            this.Exit();
         }
     }
 }

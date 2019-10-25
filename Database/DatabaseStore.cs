@@ -28,6 +28,14 @@ namespace ATMPlus.Database
               "MultipleActiveResultSets=true;");
         }
 
+        public SortedList<int> ObtenerCuentas(CuentaGerente cuenta)
+        {
+            var retorno = new SortedList<int>();
+            foreach (var acc in CuentaCliente)
+                retorno.Add(acc.NumeroCuenta);
+            return retorno;
+        }
+
         private SortedList<IHistorial> historial(int cuenta = 0)
         {
             var historial = new SortedList<IHistorial>();
@@ -36,7 +44,7 @@ namespace ATMPlus.Database
             return historial;
         }
 
-        public SortedList<IHistorial> ObtenerHistorial(CuentaGerente auth, int cuenta = 0) => historial(cuenta);
+        public SortedList<IHistorial> ObtenerHistorial(CuentaGerente auth) => historial();
 
         public SortedList<IHistorial> ObtenerHistorial(CuentaCliente cuenta)
         {
