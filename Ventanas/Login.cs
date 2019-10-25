@@ -132,10 +132,5 @@ namespace ATMPlus.Ventanas
                 cuentaLogin = db.InicioSesion(int.Parse(textbox.Text), Hasher.EncryptSHA1(passbox.Text));
             }
         }
-
-        public class NumberBox : TextBox
-        {
-            protected override bool CanAddCharacter(char character) => char.IsNumber(character);
-        }
     }
 }
