@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ATMPlus.Helpers
 {
-    public class YearMonthTuple : IComparable<YearMonthTuple>
+    public sealed class YearMonthTuple : IComparable<YearMonthTuple>
     {
         public YearMonthTuple(int year, int month)
         {

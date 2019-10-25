@@ -8,7 +8,6 @@ using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Screens;
 using osuTK;
 using osuTK.Graphics;
-using System;
 using System.Threading.Tasks;
 
 namespace ATMPlus.Ventanas

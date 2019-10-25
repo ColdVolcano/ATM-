@@ -12,13 +12,13 @@ namespace ATMPlus.Database
         DbSet<Cuenta> Cuenta { get; set; }
         DbSet<CuentaGerente> CuentaGerente { get; set; }
         DbSet<CuentaCliente> CuentaCliente { get; set; }
-        public DbSet<HistorialConsulta> HistorialConsulta { get; set; }
-        public DbSet<HistorialRetiro> HistorialRetiro { get; set; }
-        public DbSet<HistorialDeposito> HistorialDeposito { get; set; }
+        DbSet<HistorialConsulta> HistorialConsulta { get; set; }
+        DbSet<HistorialRetiro> HistorialRetiro { get; set; }
+        DbSet<HistorialDeposito> HistorialDeposito { get; set; }
 
 #pragma warning restore IDE1006 // Estilos de nombres
 
-        private static int billetesRestantes = 500;
+        public static int BilletesRestantes { get; private set; } = 500;
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(
@@ -53,7 +53,7 @@ namespace ATMPlus.Database
         {
             if (cuenta.Saldo < cantidad)
                 return ResultadoOperacion.NoSaldo;
-            if (cantidad > billetesRestantes * 20)
+            if (cantidad > BilletesRestantes * 20)
                 return ResultadoOperacion.NoDinero; 
             
             CuentaCliente updateAcc = CuentaCliente.First(acc => cuenta.NumeroCuenta == acc.NumeroCuenta);
@@ -64,17 +64,18 @@ namespace ATMPlus.Database
             HistorialRetiro.Add(new HistorialRetiro() { FechaHora = DateTime.Now, CuentaOrigen = cuenta.NumeroCuenta, Cantidad = cantidad });
             SaveChanges();
 
-            billetesRestantes -= (int)(cantidad / 20);
+            BilletesRestantes -= (int)(cantidad / 20);
 
             return ResultadoOperacion.Correcto;
         }
 
-        public ResultadoOperacion DepositoUsuario(CuentaCliente cuenta, double cantidad, int cuentaDestino)
+        public ResultadoOperacion DepositoUsuario(CuentaCliente cuenta, double cantidad, int cuentaDestino, out PendingDeposit salida)
         {
-            if (CuentaCliente.FirstOrDefault(acc => cuenta.NumeroCuenta == acc.NumeroCuenta) == null)
+            salida = new PendingDeposit();
+            if (CuentaCliente.FirstOrDefault(acc => cuentaDestino == acc.NumeroCuenta) == null)
                 return ResultadoOperacion.NoCuenta;
 
-            cuenta.DepositosPendientes.Add(new PendingDeposit(DateTime.Now, cuentaDestino, cantidad));
+            salida = new PendingDeposit(DateTime.Now, cuentaDestino, cantidad);
             return ResultadoOperacion.Correcto;
         }
 
@@ -82,7 +83,7 @@ namespace ATMPlus.Database
         {
             foreach (var ent in cuenta.DepositosPendientes)
             {
-                CuentaCliente updateAcc = CuentaCliente.First(acc => cuenta.NumeroCuenta == acc.NumeroCuenta);
+                CuentaCliente updateAcc = CuentaCliente.First(acc => ent.Destination == acc.NumeroCuenta);
                 updateAcc.Saldo += ent.Ammount;
                 HistorialDeposito.Add(new HistorialDeposito() { Cantidad = ent.Ammount, CuentaOrigen = cuenta.NumeroCuenta, CuentaDestino = ent.Destination, FechaHora = ent.Time });
             }

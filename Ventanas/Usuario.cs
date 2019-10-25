@@ -40,7 +40,7 @@ namespace ATMPlus.Ventanas
                     Origin = Anchor.Centre,
                     BackgroundColour = FrameworkColour.Blue,
                     Text = "Deposito",
-                    Action = () => MostrarAlerta("Hola xd")
+                    Action = () => LoadComponentAsync(new DepositoUsuario(cuenta), this.Push),
                 },
                 new BotonOpcion
                 {

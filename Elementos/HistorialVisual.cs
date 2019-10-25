@@ -11,7 +11,7 @@ namespace ATMPlus.Elementos
     {
         protected IHistorial Entrada;
         private readonly SpriteText textoInforme;
-        public HistorialVisual(ICuenta cuenta, IHistorial entrada)
+        public HistorialVisual(ICuenta cuenta, IHistorial entrada, bool mostrarCuenta = false)
         {
             RelativeSizeAxes = Axes.X;
             Height = 110;
@@ -39,8 +39,17 @@ namespace ATMPlus.Elementos
                     Anchor = Anchor.BottomLeft,
                     Origin = Anchor.BottomLeft,
                     Font = new FontUsage(size: 20),
+                    Alpha = 0.75f,
                     Text = $"{entrada.FechaHora:MM/dd/yyyy HH:mm}"
-                }
+                },
+                new SpriteText
+                {
+                    Anchor = Anchor.TopLeft,
+                    Origin = Anchor.TopLeft,
+                    Font = new FontUsage(size: 20),
+                    Alpha = 0.75f,
+                    Text = $"{(mostrarCuenta ? $"{entrada.CuentaOrigen}" : "")}"
+                },
             };
 
             switch (entrada)

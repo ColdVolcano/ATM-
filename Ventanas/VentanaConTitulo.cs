@@ -85,7 +85,6 @@ namespace ATMPlus.Ventanas
                         AutoSizeAxes = Axes.Both,
                         TextAnchor = Anchor.Centre,
                         ParagraphSpacing = 10,
-                        Padding = new MarginPadding(200),
                     }
                 }
             });
@@ -96,7 +95,7 @@ namespace ATMPlus.Ventanas
             contentChild.Add(drawable);
         }
 
-        public void MostrarAlerta(string texto, bool autoExit = false, bool autoHide = false)
+        protected void MostrarAlerta(string texto, bool autoExit = false, bool autoHide = false)
         {
             contentChild.ShouldHandleInput = false;
             alertText.Text = "";
@@ -173,8 +172,12 @@ namespace ATMPlus.Ventanas
             colorBox
                 .FadeOut(fade_duration);
 
+            alertContainer.ClearTransforms();
+            alertContainer.FadeOut(200);
+
             this.Delay(fade_duration)
                 .FadeOut();
+
 
             return base.OnExiting(next);
         }
@@ -183,27 +186,23 @@ namespace ATMPlus.Ventanas
         {
             if (alertContainer.Alpha > 0)
             {
-                if (alertAutoExit)
-                    this.Exit();
                 if (!alertAutoHide || !input)
                 {
                     alertContainer.ClearTransforms();
                     alertContainer.FadeOut(200);
                     contentChild.ShouldHandleInput = true;
                 }
+                if (alertAutoExit)
+                    this.Exit();
+                if (!alertAutoHide || !input)
+                {
+                    OnAlertHide?.Invoke();
+                }
                 return true;
             }
             return false;
         }
 
-        protected override bool OnClick(ClickEvent e)
-        {
-            return handleAlert() ? true : base.OnClick(e);
-        }
-        protected override bool OnMouseMove(MouseMoveEvent e)
-        {
-            return alertContainer.Alpha == 0 ? base.OnMouseMove(e) : true;
-        }
         protected override bool OnMouseDown(MouseDownEvent e)
         {
             return handleAlert() ? true : base.OnMouseDown(e);
