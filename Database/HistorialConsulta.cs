@@ -15,5 +15,10 @@ namespace ATMPlus.Database
         [Required]
         [Column("FechaHora", TypeName = "datetime")]
         public DateTime FechaHora { get; set; }
+
+        public override string ToString()
+        {
+            return FechaHora.ToString("MM/yyyy");
+        }
     }
 }

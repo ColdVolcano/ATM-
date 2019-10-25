@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ATMPlus.Helpers;
+using Microsoft.EntityFrameworkCore;
 using osu.Framework.Lists;
+using System;
 using System.Linq;
 
 namespace ATMPlus.Database
@@ -14,8 +16,9 @@ namespace ATMPlus.Database
         public DbSet<HistorialRetiro> HistorialRetiro { get; set; }
         public DbSet<HistorialDeposito> HistorialDeposito { get; set; }
 
-
 #pragma warning restore IDE1006 // Estilos de nombres
+
+        private static int billetesRestantes = 500;
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(
@@ -25,18 +28,66 @@ namespace ATMPlus.Database
               "MultipleActiveResultSets=true;");
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        private SortedList<IHistorial> historial(int cuenta = 0)
         {
-
-        }
-
-        public SortedList<IHistorial> ObtenerHistorial(int cuenta = 0)
-        {
-            //CuentaCliente.Where(c => cuenta == 0 ? true : cuenta == c.NumeroCuenta).Select(c => c.NumeroCuenta)
-            var historial = new SortedList<IHistorial>((obj1, obj2) => obj1.FechaHora > obj2.FechaHora ? 1 : -1);
-            historial.AddRange(HistorialDeposito.Where(c => cuenta == 0 ? true : cuenta == c.CuentaOrigen));
+            var historial = new SortedList<IHistorial>();
+            historial.AddRange(HistorialDeposito.Where(c => cuenta == 0 ? true : cuenta == c.CuentaOrigen || cuenta == c.CuentaDestino));
             historial.AddRange(HistorialRetiro.Where(c => cuenta == 0 ? true : cuenta == c.CuentaOrigen));
             return historial;
+        }
+
+        public SortedList<IHistorial> ObtenerHistorial(CuentaGerente auth, int cuenta = 0) => historial(cuenta);
+
+        public SortedList<IHistorial> ObtenerHistorial(CuentaCliente cuenta)
+        {
+            if (cuenta == null)
+                return null;
+
+            HistorialConsulta.Add(new HistorialConsulta() { FechaHora = DateTime.Now, CuentaOrigen = cuenta.NumeroCuenta });
+            SaveChanges();
+
+            return historial(cuenta.NumeroCuenta);
+        }
+
+        public ResultadoOperacion RetiroUsuario(CuentaCliente cuenta, double cantidad)
+        {
+            if (cuenta.Saldo < cantidad)
+                return ResultadoOperacion.NoSaldo;
+            if (cantidad > billetesRestantes * 20)
+                return ResultadoOperacion.NoDinero; 
+            
+            CuentaCliente updateAcc = CuentaCliente.First(acc => cuenta.NumeroCuenta == acc.NumeroCuenta);
+            updateAcc.Saldo -= cantidad;
+
+            cuenta.Saldo = updateAcc.Saldo;
+
+            HistorialRetiro.Add(new HistorialRetiro() { FechaHora = DateTime.Now, CuentaOrigen = cuenta.NumeroCuenta, Cantidad = cantidad });
+            SaveChanges();
+
+            billetesRestantes -= (int)(cantidad / 20);
+
+            return ResultadoOperacion.Correcto;
+        }
+
+        public ResultadoOperacion DepositoUsuario(CuentaCliente cuenta, double cantidad, int cuentaDestino)
+        {
+            if (CuentaCliente.FirstOrDefault(acc => cuenta.NumeroCuenta == acc.NumeroCuenta) == null)
+                return ResultadoOperacion.NoCuenta;
+
+            cuenta.DepositosPendientes.Add(new PendingDeposit(DateTime.Now, cuentaDestino, cantidad));
+            return ResultadoOperacion.Correcto;
+        }
+
+        public void CerrarSesion(CuentaCliente cuenta)
+        {
+            foreach (var ent in cuenta.DepositosPendientes)
+            {
+                CuentaCliente updateAcc = CuentaCliente.First(acc => cuenta.NumeroCuenta == acc.NumeroCuenta);
+                updateAcc.Saldo += ent.Ammount;
+                HistorialDeposito.Add(new HistorialDeposito() { Cantidad = ent.Ammount, CuentaOrigen = cuenta.NumeroCuenta, CuentaDestino = ent.Destination, FechaHora = ent.Time });
+            }
+
+            SaveChanges();
         }
 
         public ICuenta InicioSesion(int numCuenta, string pinPass)

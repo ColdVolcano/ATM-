@@ -22,5 +22,10 @@ namespace ATMPlus.Database
 
         [Required]
         public int CuentaDestino { get; set; }
+
+        public override string ToString()
+        {
+            return FechaHora.ToString("MM/yyyy");
+        }
     }
 }

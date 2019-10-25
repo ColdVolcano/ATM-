@@ -16,6 +16,13 @@ namespace ATMPlus.Elementos
                 RelativeSizeAxes = Axes.Both,
                 Alpha = 0,
             });
+            Enabled.ValueChanged += v =>
+            {
+                if (v.NewValue && IsHovered)
+                    hover.FadeTo(0.2f, 150);
+                else
+                    hover.FadeOut(150);
+            };
         }
 
         protected override bool OnHover(HoverEvent e)

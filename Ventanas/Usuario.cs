@@ -4,7 +4,6 @@ using osu.Framework.Screens;
 using ATMPlus.Elementos;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics;
-using osu.Framework.Allocation;
 
 namespace ATMPlus.Ventanas
 {
@@ -32,7 +31,7 @@ namespace ATMPlus.Ventanas
                     Origin = Anchor.Centre,
                     BackgroundColour = FrameworkColour.Blue,
                     Text = "Retiro",
-                    Action = this.Exit,
+                    Action = () => LoadComponentAsync(new RetiroUsuario(cuenta), this.Push),
                 },
                 new BotonOpcion
                 {
@@ -41,12 +40,31 @@ namespace ATMPlus.Ventanas
                     Origin = Anchor.Centre,
                     BackgroundColour = FrameworkColour.Blue,
                     Text = "Deposito",
-                    Action = this.Exit,
+                    Action = () => MostrarAlerta("Hola xd")
+                },
+                new BotonOpcion
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    BackgroundColour = Color4.OrangeRed,
+                    Icono = FontAwesome.Solid.SignOutAlt,
+                    Text = "Salir",
+                    Action = Salir,
                 }
-            });
+        });
 
             Titulo = $"Nos alegra tenerte aquí, {cuenta.Nombre.PrimerNombre}";
             ColorFondoTitulo = Color4.MediumSlateBlue;
+        }
+
+        private void Salir()
+        {
+            MostrarAlerta("Gracias por usar el cajero automatico", true, true);
+            using (var db = new DatabaseStore())
+            {
+                db.CerrarSesion(cuenta);
+            }
+            this.Exit();
         }
     }
 }

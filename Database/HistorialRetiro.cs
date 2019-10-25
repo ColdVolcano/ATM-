@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ATMPlus.Database
 {
@@ -19,5 +20,10 @@ namespace ATMPlus.Database
         [Required]
         [Column("Cantidad", TypeName = "float")]
         public double Cantidad { get; set; }
+
+        public override string ToString()
+        {
+            return FechaHora.ToString("MM/yyyy");
+        }
     }
 }

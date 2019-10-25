@@ -1,8 +1,7 @@
-﻿using System;
+﻿using ATMPlus.Helpers;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
 
 namespace ATMPlus.Database
 {
@@ -18,6 +17,9 @@ namespace ATMPlus.Database
 
         [NotMapped]
         public Nombre Nombre { get; set; }
+
+        [NotMapped]
+        public readonly List<PendingDeposit> DepositosPendientes = new List<PendingDeposit>();
 
     }
 }

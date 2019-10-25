@@ -11,7 +11,7 @@ namespace ATMPlus.Elementos
     {
         protected IHistorial Entrada;
         private readonly SpriteText textoInforme;
-        public HistorialVisual(IHistorial entrada)
+        public HistorialVisual(ICuenta cuenta, IHistorial entrada)
         {
             RelativeSizeAxes = Axes.X;
             Height = 110;
@@ -49,7 +49,7 @@ namespace ATMPlus.Elementos
                     textoInforme.Text = $"Retiro de efectivo por ${retiro.Cantidad}";
                     break;
                 case HistorialDeposito deposito:
-                    textoInforme.Text = $"Deposito {(deposito.CuentaOrigen == deposito.CuentaDestino ? "a cuenta propia" : $"a cuenta {"····" + deposito.CuentaDestino % 10:00}")} por ${deposito.Cantidad:0.##}";
+                    textoInforme.Text = $"Deposito {(cuenta.NumeroCuenta == deposito.CuentaDestino ? "" : $"a cuenta {"····" + deposito.CuentaDestino % 10:00} ")}por ${deposito.Cantidad:0.##}";
                     break;
             }
         }

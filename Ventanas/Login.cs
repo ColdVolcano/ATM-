@@ -8,6 +8,7 @@ using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Screens;
 using osuTK;
 using osuTK.Graphics;
+using System;
 using System.Threading.Tasks;
 
 namespace ATMPlus.Ventanas
@@ -18,6 +19,16 @@ namespace ATMPlus.Ventanas
         private NumberBox textbox;
         private PasswordTextBox passbox;
         private BotonHover submit;
+        private bool enableBut = true;
+
+        private bool buttonEnabled
+        {
+            set
+            {
+                enableBut = value;
+                checkButton();
+            }
+        }
 
         private ICuenta cuentaLogin
         {
@@ -31,6 +42,7 @@ namespace ATMPlus.Ventanas
                         .FadeIn()
                         .Delay(1500)
                         .FadeOut(1000, Easing.InCubic);
+                    buttonEnabled = true;
                 }
                 else
                 {
@@ -90,7 +102,7 @@ namespace ATMPlus.Ventanas
                 Colour = Color4.OrangeRed,
                 Alpha = 0f,
             });
-            submit.Action += () => Task.Run(obtenerCuenta);
+            submit.Action += obtenerCuenta;
             submit.Enabled.Value = false;
 
             passbox.Current.ValueChanged += _ => checkButton();
@@ -102,6 +114,7 @@ namespace ATMPlus.Ventanas
             base.OnEntering(last);
             textbox.Text = "";
             passbox.Text = "";
+            buttonEnabled = true;
         }
 
         public override void OnResuming(IScreen last)
@@ -110,6 +123,7 @@ namespace ATMPlus.Ventanas
 
             textbox.Text = "";
             passbox.Text = "";
+            buttonEnabled = true;
         }
 
         public override void OnSuspending(IScreen next)
@@ -121,16 +135,20 @@ namespace ATMPlus.Ventanas
 
         private void checkButton()
         {
-            submit.Enabled.Value = !string.IsNullOrEmpty(textbox.Text) && !string.IsNullOrEmpty(passbox.Text) && textbox.Text.Length == 6;
+            submit.Enabled.Value = !string.IsNullOrEmpty(textbox.Text) && !string.IsNullOrEmpty(passbox.Text) && textbox.Text.Length == 6 && enableBut;
             submit.BackgroundColour = submit.Enabled.Value ? enabledColor : disabledColor;
         }
 
         private void obtenerCuenta()
         {
-            using (var db = new DatabaseStore())
+            buttonEnabled = false;
+            Task.Run(() =>
             {
-                cuentaLogin = db.InicioSesion(int.Parse(textbox.Text), Hasher.EncryptSHA1(passbox.Text));
-            }
+                using (var db = new DatabaseStore())
+                {
+                    cuentaLogin = db.InicioSesion(int.Parse(textbox.Text), Hasher.EncryptSHA1(passbox.Text));
+                }
+            });
         }
     }
 }

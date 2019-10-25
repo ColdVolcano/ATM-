@@ -23,19 +23,5 @@ namespace ATMPlus.Ventanas
                 Spacing = new Vector2(10, 0),
             });
         }
-
-        [BackgroundDependencyLoader]
-        private void load()
-        {
-            FlujoBotones.Add(new BotonOpcion
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                BackgroundColour = Color4.OrangeRed,
-                Icono = FontAwesome.Solid.SignOutAlt,
-                Text = "Salir",
-                Action = this.Exit,
-            });
-        }
     }
 }

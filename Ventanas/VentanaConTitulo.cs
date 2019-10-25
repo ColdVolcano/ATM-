@@ -1,10 +1,12 @@
-﻿using osu.Framework.Allocation;
-using osu.Framework.Graphics.Containers;
+﻿using osu.Framework.Graphics.Containers;
 using osu.Framework.Screens;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Shapes;
 using osuTK.Graphics;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Input.Events;
+using System;
+using ATMPlus.Elementos;
 
 namespace ATMPlus.Ventanas
 {
@@ -14,15 +16,22 @@ namespace ATMPlus.Ventanas
         private const double fade_duration = 300;
         private const double text_duration = 400;
 
-        private Container contentChild;
+        private bool alertAutoExit;
+        private bool alertAutoHide;
+
+        private ConditionalInputContainer contentChild;
+        private Container alertContainer;
+        private TextFlowContainer alertText;
 
         private Box colorBox;
         private SpriteText greetText;
+
+        protected Action OnAlertHide;
         protected string Titulo { get { return greetText.Text; } set { greetText.Text = value; } }
         protected Color4 ColorFondoTitulo { get { return colorBox.Colour; } set { colorBox.Colour = value; } }
         public VentanaConTitulo()
         {
-            AddInternal(contentChild = new Container
+            AddInternal(contentChild = new ConditionalInputContainer
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
@@ -53,11 +62,50 @@ namespace ATMPlus.Ventanas
                     },
                 }
             });
+
+            AddInternal(alertContainer = new Container
+            {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                Padding = new MarginPadding { Top = 100 },
+                RelativeSizeAxes = Axes.Both,
+                Alpha = 0,
+                Children = new Drawable[]
+                {
+                    new Box
+                    {
+                        Colour = Color4.White,
+                        Alpha = 0.1f,
+                        RelativeSizeAxes = Axes.Both
+                    },
+                    alertText = new TextFlowContainer
+                    {
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        AutoSizeAxes = Axes.Both,
+                        TextAnchor = Anchor.Centre,
+                        ParagraphSpacing = 10,
+                        Padding = new MarginPadding(200),
+                    }
+                }
+            });
         }
 
         protected void Add(Drawable drawable)
         {
             contentChild.Add(drawable);
+        }
+
+        public void MostrarAlerta(string texto, bool autoExit = false, bool autoHide = false)
+        {
+            contentChild.ShouldHandleInput = false;
+            alertText.Text = "";
+            alertText.AddText(texto, font => { font.Font = new FontUsage(size: 50); font.Shadow = true; font.ShadowColour = Color4.Black; });
+            alertContainer.FadeIn(200);
+            if (autoHide)
+                Scheduler.AddDelayed(() => handleAlert(false), 4000);
+            alertAutoExit = autoExit;
+            alertAutoHide = autoHide;
         }
 
         public override void OnEntering(IScreen last)
@@ -129,6 +177,41 @@ namespace ATMPlus.Ventanas
                 .FadeOut();
 
             return base.OnExiting(next);
+        }
+
+        private bool handleAlert(bool input = true)
+        {
+            if (alertContainer.Alpha > 0)
+            {
+                if (alertAutoExit)
+                    this.Exit();
+                if (!alertAutoHide || !input)
+                {
+                    alertContainer.ClearTransforms();
+                    alertContainer.FadeOut(200);
+                    contentChild.ShouldHandleInput = true;
+                }
+                return true;
+            }
+            return false;
+        }
+
+        protected override bool OnClick(ClickEvent e)
+        {
+            return handleAlert() ? true : base.OnClick(e);
+        }
+        protected override bool OnMouseMove(MouseMoveEvent e)
+        {
+            return alertContainer.Alpha == 0 ? base.OnMouseMove(e) : true;
+        }
+        protected override bool OnMouseDown(MouseDownEvent e)
+        {
+            return handleAlert() ? true : base.OnMouseDown(e);
+        }
+
+        protected override bool OnKeyDown(KeyDownEvent e)
+        {
+            return handleAlert() ? true : base.OnKeyDown(e);
         }
     }
 }
